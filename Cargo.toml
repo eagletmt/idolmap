@@ -4,3 +4,10 @@ version = "0.1.0"
 authors = ["Kohei Suzuki <eagletmt@gmail.com>"]
 
 [dependencies]
+hyper = "0.11"
+tokio-core = "0.1"
+futures = "0.1"
+kuchiki = "0.5"
+selectors = "0.18"
+log = "0.3"
+env_logger = "0.4"
