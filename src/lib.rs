@@ -39,3 +39,4 @@ impl CsvWriter {
 }
 
 pub mod aikatsu;
+pub mod pripara;
