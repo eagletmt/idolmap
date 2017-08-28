@@ -1,5 +1,7 @@
 #[macro_use]
 extern crate log;
+#[macro_use]
+extern crate serde_derive;
 
 #[derive(Debug)]
 pub struct Shop {
@@ -39,4 +41,5 @@ impl CsvWriter {
 }
 
 pub mod aikatsu;
+pub mod lovelive;
 pub mod pripara;
