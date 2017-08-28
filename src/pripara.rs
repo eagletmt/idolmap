@@ -5,12 +5,6 @@ extern crate selectors;
 extern crate std;
 extern crate tokio_core;
 
-#[derive(Debug)]
-struct Pref {
-    id: usize,
-    name: String,
-}
-
 pub fn update_all() {
     std::fs::create_dir_all("pripara").expect("Failed to create pripara directory");
 
@@ -19,13 +13,13 @@ pub fn update_all() {
     for pref in fetch_prefs(&mut core, &client) {
         use self::futures::Future;
 
-        let mut csv_writer = super::CsvWriter::new(format!("pripara/{:02}.csv", pref.id))
+        let mut csv_writer = super::CsvWriter::new(format!("pripara/{}.csv", pref))
             .expect("Failed to open CSV file");
         csv_writer.write_header().expect(
             "Failed to write CSV header",
         );
 
-        let uri = format!("http://pripara.jp/shop/search_list?pref_name={}", pref.name)
+        let uri = format!("http://pripara.jp/shop/search_list?pref_name={}", pref)
             .parse()
             .expect("Failed to parse search_list URL");
         info!("GET {}", uri);
@@ -63,7 +57,7 @@ pub fn update_all() {
 fn fetch_prefs(
     core: &mut tokio_core::reactor::Core,
     client: &hyper::Client<hyper::client::HttpConnector>,
-) -> Vec<Pref> {
+) -> Vec<String> {
     use self::futures::Future;
 
     let uri = "http://pripara.jp/shop/search_list".parse().expect(
@@ -81,18 +75,11 @@ fn fetch_prefs(
             let document = kuchiki::parse_html().one(String::from_utf8_lossy(&body).borrow());
 
             let mut prefs = vec![];
-            for (i, option_node) in document
-                .select("select[name=pref_name] option")
-                .unwrap()
-                .enumerate()
-            {
+            for option_node in document.select("select[name=pref_name] option").unwrap() {
                 let element = option_node.as_node().as_element().unwrap();
                 if let Some(value) = element.attributes.borrow().get("value") {
                     if !value.is_empty() {
-                        prefs.push(Pref {
-                            id: i,
-                            name: value.to_owned(),
-                        });
+                        prefs.push(value.to_owned());
                     }
                 }
             }

@@ -10,7 +10,9 @@ pub fn update_all() {
 
     let mut core = tokio_core::reactor::Core::new().expect("Failed to initialize tokio reactor");
     let client = hyper::Client::new(&core.handle());
-    for pref in 1..48 {
+    let prefs = fetch_prefs(&mut core, &client);
+
+    for (pref_id, pref) in prefs {
         let mut csv_writer = super::CsvWriter::new(format!("aikatsu/{:02}.csv", pref))
             .expect("Failed to open CSV file");
         csv_writer.write_header().expect(
@@ -23,7 +25,7 @@ pub fn update_all() {
             let uri = format!(
                 "http://www.aikatsu.com/stars/playshop/list.php?p={}&pref={:02}",
                 page,
-                pref
+                pref_id
             ).parse()
                 .expect("Failed to parse playshop URL");
             info!("GET {}", uri);
@@ -58,6 +60,45 @@ pub fn update_all() {
             }
         }
     }
+}
+
+fn fetch_prefs(
+    core: &mut tokio_core::reactor::Core,
+    client: &hyper::Client<hyper::client::HttpConnector>,
+) -> std::collections::HashMap<i32, String> {
+    use self::futures::Future;
+
+    let uri = "http://www.aikatsu.com/stars/playshop/list.php?p=1"
+        .parse()
+        .unwrap();
+    info!("GET {}", uri);
+    let work = client.get(uri).and_then(|res| {
+        use self::futures::Stream;
+        use self::kuchiki::traits::TendrilSink;
+        use std::borrow::Borrow;
+
+        info!("{}", res.status());
+        res.body().concat2().and_then(|body| {
+            let document = kuchiki::parse_html().one(String::from_utf8_lossy(&body).borrow());
+
+            let mut prefs = std::collections::HashMap::new();
+            for option_node in document.select("#pref_id option").unwrap() {
+                let element = option_node.as_node().as_element().unwrap();
+                if let Some(value) = element.attributes.borrow().get("value") {
+                    if !value.is_empty() {
+                        if let Some(label) = element.attributes.borrow().get("label") {
+                            prefs.insert(
+                                value.parse().expect("non-integer value"),
+                                label.to_owned(),
+                            );
+                        }
+                    }
+                }
+            }
+            Ok(prefs)
+        })
+    });
+    core.run(work).unwrap()
 }
 
 fn extract_shop(shop_node: kuchiki::NodeDataRef<kuchiki::ElementData>) -> Option<super::Shop> {
