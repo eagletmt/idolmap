@@ -23,7 +23,7 @@ pub fn update_all() {
             use self::futures::Future;
 
             let uri = format!(
-                "http://www.aikatsu.com/stars/playshop/list.php?p={}&pref={:02}",
+                "http://www.aikatsu.com/stars/playshop/list.php?p={}&pref={}",
                 page,
                 pref_id
             ).parse()
