@@ -90,7 +90,7 @@ pub fn update_all() {
             });
 
         let shops_per_page = core.run(work).expect("Failed to run tokio event loop");
-        let mut csv_writer = super::CsvWriter::new(format!("aikatsu/{:02}.csv", pref))
+        let mut csv_writer = super::CsvWriter::new(format!("aikatsu/{}.csv", pref))
             .expect("Failed to open CSV file");
         csv_writer.write_header().expect(
             "Failed to write CSV header",
