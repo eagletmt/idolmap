@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Kohei Suzuki <eagletmt@gmail.com>"]
 
 [dependencies]
+clap = "2.26"
 env_logger = "0.4"
 futures = "0.1"
 hyper = "0.11"
