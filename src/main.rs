@@ -29,12 +29,22 @@ fn main() {
                     "Update pripara CSV files",
                 )),
         )
+        .subcommand(
+            clap::SubCommand::with_name("csv")
+                .setting(clap::AppSettings::SubcommandRequired)
+                .subcommand(
+                    clap::SubCommand::with_name("bundle")
+                        .about("Bundle CSV files for uploading to Google Maps")
+                        .arg(clap::Arg::with_name("FILE").required(true).multiple(true)),
+                ),
+        )
         .get_matches();
 
     match matches.subcommand() {
         ("aikatsu", Some(matches)) => aikatsu(matches),
         ("lovelive", Some(matches)) => lovelive(matches),
         ("pripara", Some(matches)) => pripara(matches),
+        ("csv", Some(matches)) => csv(matches),
         _ => unreachable!(),
     }
 }
@@ -56,6 +66,13 @@ fn lovelive<'a>(matches: &clap::ArgMatches<'a>) {
 fn pripara<'a>(matches: &clap::ArgMatches<'a>) {
     match matches.subcommand() {
         ("update", _) => idolmap::pripara::update_all(),
+        _ => unreachable!(),
+    }
+}
+
+fn csv<'a>(matches: &clap::ArgMatches<'a>) {
+    match matches.subcommand() {
+        ("bundle", Some(matches)) => idolmap::csv::bundle(matches.values_of("FILE").unwrap()),
         _ => unreachable!(),
     }
 }
