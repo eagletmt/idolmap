@@ -42,5 +42,5 @@ impl CsvWriter {
 
 pub mod aikatsu;
 pub mod lovelive;
-pub mod pripara;
+pub mod prichan;
 pub mod csv;

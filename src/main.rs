@@ -23,10 +23,10 @@ fn main() {
                 ),
         )
         .subcommand(
-            clap::SubCommand::with_name("pripara")
+            clap::SubCommand::with_name("prichan")
                 .setting(clap::AppSettings::SubcommandRequired)
                 .subcommand(
-                    clap::SubCommand::with_name("update").about("Update pripara CSV files"),
+                    clap::SubCommand::with_name("update").about("Update prichan CSV files"),
                 ),
         )
         .subcommand(
@@ -43,7 +43,7 @@ fn main() {
     match matches.subcommand() {
         ("aikatsu", Some(matches)) => aikatsu(matches),
         ("lovelive", Some(matches)) => lovelive(matches),
-        ("pripara", Some(matches)) => pripara(matches),
+        ("prichan", Some(matches)) => prichan(matches),
         ("csv", Some(matches)) => csv(matches),
         _ => unreachable!(),
     }
@@ -63,9 +63,9 @@ fn lovelive<'a>(matches: &clap::ArgMatches<'a>) {
     }
 }
 
-fn pripara<'a>(matches: &clap::ArgMatches<'a>) {
+fn prichan<'a>(matches: &clap::ArgMatches<'a>) {
     match matches.subcommand() {
-        ("update", _) => idolmap::pripara::update_all(),
+        ("update", _) => idolmap::prichan::update_all(),
         _ => unreachable!(),
     }
 }
