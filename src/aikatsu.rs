@@ -43,9 +43,10 @@ pub fn update_all() {
                     if let Some(href) = attributes.get("href") {
                         let last_page_url =
                             base_url.join(href).expect("Failed to parse last_page URL");
-                        let pair = last_page_url.query_pairs().find(|p| p.0 == "p").expect(
-                            "Failed to find p parameter",
-                        );
+                        let pair = last_page_url
+                            .query_pairs()
+                            .find(|p| p.0 == "p")
+                            .expect("Failed to find p parameter");
                         Ok(pair.1.parse().expect("Non-integer p parameter"))
                     } else {
                         // No pagination
@@ -92,15 +93,15 @@ pub fn update_all() {
         let shops_per_page = core.run(work).expect("Failed to run tokio event loop");
         let mut csv_writer = super::CsvWriter::new(format!("aikatsu/{}.csv", pref))
             .expect("Failed to open CSV file");
-        csv_writer.write_header().expect(
-            "Failed to write CSV header",
-        );
+        csv_writer
+            .write_header()
+            .expect("Failed to write CSV header");
 
         for shops in shops_per_page {
             for shop in shops {
-                csv_writer.write_shop(&shop).expect(
-                    "Unable to write shops to file",
-                );
+                csv_writer
+                    .write_shop(&shop)
+                    .expect("Unable to write shops to file");
             }
         }
     }
@@ -163,22 +164,23 @@ fn extract_shop_name(shop_node: &kuchiki::NodeRef) -> Option<String> {
         .select("th.list-name ~ td")
         .unwrap()
         .next()
-        .and_then(|name_node| {
-            Some(name_node.text_contents().trim().to_owned())
-        })
+        .and_then(|name_node| Some(name_node.text_contents().trim().to_owned()))
 }
 
 fn extract_shop_address(shop_node: &kuchiki::NodeRef) -> Option<String> {
-    shop_node.select("a.btn_map").unwrap().next().and_then(
-        |map_node| {
+    shop_node
+        .select("a.btn_map")
+        .unwrap()
+        .next()
+        .and_then(|map_node| {
             use self::selectors::Element;
             map_node.parent_element().and_then(|parent_node| {
-                parent_node.as_node().first_child().and_then(|text_node| {
-                    Some(text_node.text_contents().trim().to_owned())
-                })
+                parent_node
+                    .as_node()
+                    .first_child()
+                    .and_then(|text_node| Some(text_node.text_contents().trim().to_owned()))
             })
-        },
-    )
+        })
 }
 
 fn extract_shop_units(shop_node: &kuchiki::NodeRef) -> usize {

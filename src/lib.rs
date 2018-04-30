@@ -20,7 +20,9 @@ impl CsvWriter {
     where
         P: AsRef<std::path::Path>,
     {
-        Ok(Self { file: std::fs::File::create(path)? })
+        Ok(Self {
+            file: std::fs::File::create(path)?,
+        })
     }
 
     pub fn write_header(&mut self) -> std::io::Result<()> {
@@ -33,9 +35,7 @@ impl CsvWriter {
         writeln!(
             &mut self.file,
             "{},{},{}台",
-            shop.name,
-            shop.address,
-            shop.units
+            shop.name, shop.address, shop.units
         )
     }
 }

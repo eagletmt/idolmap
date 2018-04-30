@@ -11,23 +11,23 @@ fn main() {
         .subcommand(
             clap::SubCommand::with_name("aikatsu")
                 .setting(clap::AppSettings::SubcommandRequired)
-                .subcommand(clap::SubCommand::with_name("update").about(
-                    "Update aikatsu CSV files",
-                )),
+                .subcommand(
+                    clap::SubCommand::with_name("update").about("Update aikatsu CSV files"),
+                ),
         )
         .subcommand(
             clap::SubCommand::with_name("lovelive")
                 .setting(clap::AppSettings::SubcommandRequired)
-                .subcommand(clap::SubCommand::with_name("update").about(
-                    "Update lovelive CSV files",
-                )),
+                .subcommand(
+                    clap::SubCommand::with_name("update").about("Update lovelive CSV files"),
+                ),
         )
         .subcommand(
             clap::SubCommand::with_name("pripara")
                 .setting(clap::AppSettings::SubcommandRequired)
-                .subcommand(clap::SubCommand::with_name("update").about(
-                    "Update pripara CSV files",
-                )),
+                .subcommand(
+                    clap::SubCommand::with_name("update").about("Update pripara CSV files"),
+                ),
         )
         .subcommand(
             clap::SubCommand::with_name("csv")

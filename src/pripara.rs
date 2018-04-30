@@ -42,21 +42,20 @@ pub fn update_all() {
             .and_then(move |shops| {
                 let mut csv_writer = super::CsvWriter::new(format!("pripara/{}.csv", pref))
                     .expect("Failed to open CSV file");
-                csv_writer.write_header().expect(
-                    "Failed to write CSV header",
-                );
+                csv_writer
+                    .write_header()
+                    .expect("Failed to write CSV header");
                 for shop in shops {
-                    csv_writer.write_shop(&shop).expect(
-                        "Unable to write shops to file",
-                    );
+                    csv_writer
+                        .write_shop(&shop)
+                        .expect("Unable to write shops to file");
                 }
                 Ok(())
             });
         works.push(work);
     }
-    core.run(futures::future::join_all(works)).expect(
-        "Failed to run tokio event loop",
-    );
+    core.run(futures::future::join_all(works))
+        .expect("Failed to run tokio event loop");
 }
 
 fn fetch_prefs(
@@ -65,9 +64,9 @@ fn fetch_prefs(
 ) -> Vec<String> {
     use self::futures::Future;
 
-    let uri = "http://pripara.jp/shop/search_list".parse().expect(
-        "Failed to parse search_list URL",
-    );
+    let uri = "http://pripara.jp/shop/search_list"
+        .parse()
+        .expect("Failed to parse search_list URL");
 
     info!("GET {}", uri);
     let work = client.get(uri).and_then(|res| {

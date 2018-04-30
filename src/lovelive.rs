@@ -1,9 +1,9 @@
 extern crate futures;
 extern crate hyper;
-extern crate std;
-extern crate tokio_core;
 extern crate serde;
 extern crate serde_json;
+extern crate std;
+extern crate tokio_core;
 
 #[derive(Debug, Deserialize)]
 struct Locationlist {
@@ -75,8 +75,8 @@ pub fn update_all() {
 
         info!("{}", res.status());
         res.body().concat2().and_then(|body| {
-            let locationlist: Locationlist = serde_json::from_slice(&body[1..body.len() - 1])
-                .unwrap();
+            let locationlist: Locationlist =
+                serde_json::from_slice(&body[1..body.len() - 1]).unwrap();
             Ok(locationlist)
         })
     });
@@ -94,13 +94,13 @@ pub fn update_all() {
     for (pref, shops) in h {
         let mut csv_writer = super::CsvWriter::new(format!("lovelive/{}.csv", pref))
             .expect("Failed to open CSV file");
-        csv_writer.write_header().expect(
-            "Failed to write CSV header",
-        );
+        csv_writer
+            .write_header()
+            .expect("Failed to write CSV header");
         for shop in shops {
-            csv_writer.write_shop(&shop).expect(
-                "Failed to write shop to CSV file",
-            );
+            csv_writer
+                .write_shop(&shop)
+                .expect("Failed to write shop to CSV file");
         }
     }
 }
