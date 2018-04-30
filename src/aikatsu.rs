@@ -17,7 +17,7 @@ pub fn update_all() {
         use self::futures::Future;
 
         let base_uri_str = format!(
-            "http://www.aikatsu.com/stars/playshop/list.php?p=1&pref={:02}",
+            "http://www.aikatsu.com/friends/playshop/list.php?p=1&pref={:02}",
             pref_id
         );
         let base_uri = base_uri_str.parse().unwrap();
@@ -60,7 +60,7 @@ pub fn update_all() {
                     use self::futures::Future;
 
                     let uri = format!(
-                        "http://www.aikatsu.com/stars/playshop/list.php?p={}&pref={:02}",
+                        "http://www.aikatsu.com/friends/playshop/list.php?p={}&pref={:02}",
                         page + 1,
                         pref_id
                     ).parse()
@@ -113,7 +113,7 @@ fn fetch_prefs(
 ) -> std::collections::HashMap<i32, String> {
     use self::futures::Future;
 
-    let uri = "http://www.aikatsu.com/stars/playshop/list.php?p=1"
+    let uri = "http://www.aikatsu.com/friends/playshop/list.php?p=1"
         .parse()
         .unwrap();
     info!("GET {}", uri);
