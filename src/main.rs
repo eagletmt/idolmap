@@ -3,7 +3,7 @@ extern crate env_logger;
 extern crate idolmap;
 
 fn main() {
-    env_logger::init().expect("Failed to initialize env_logger");
+    env_logger::init();
 
     let matches = clap::App::new("idolmap")
         .version("0.1.0")

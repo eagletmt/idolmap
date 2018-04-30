@@ -1,9 +1,7 @@
-extern crate futures;
-extern crate hyper;
+extern crate reqwest;
 extern crate serde;
 extern crate serde_json;
 extern crate std;
-extern crate tokio_core;
 
 #[derive(Debug, Deserialize)]
 struct Locationlist {
@@ -56,31 +54,21 @@ where
         }
     }
 
-    deserializer.deserialize_u8(Visitor)
+    deserializer.deserialize_any(Visitor)
 }
 
 pub fn update_all() {
     std::fs::create_dir_all("lovelive").expect("Failed to create lovelive directory");
 
-    let mut core = tokio_core::reactor::Core::new().expect("Failed to initialize tokio reactor");
-    let client = hyper::Client::new(&core.handle());
-    use self::futures::Future;
+    let client = reqwest::Client::new();
 
-    let uri = "http://www.lovelive-sifac.jp/location_getlocationlist_withcache.php"
-        .parse()
-        .expect("Failed to parse search_list URL");
+    let uri = "http://www.lovelive-sifac.jp/location_getlocationlist_withcache.php";
     info!("GET {}", uri);
-    let work = client.get(uri).and_then(|res| {
-        use self::futures::Stream;
-
-        info!("{}", res.status());
-        res.body().concat2().and_then(|body| {
-            let locationlist: Locationlist =
-                serde_json::from_slice(&body[1..body.len() - 1]).unwrap();
-            Ok(locationlist)
-        })
-    });
-    let locationlist = core.run(work).expect("Failed to run tokio event loop");
+    let mut resp = client.get(uri).send().expect("Failed to send HTTP request");
+    info!("{}", resp.status());
+    let body = resp.text().expect("Failed to read response body");
+    let locationlist: Locationlist =
+        serde_json::from_str(&body[1..body.len() - 1]).expect("Failed to deserialize JSON body");
 
     let mut h = std::collections::HashMap::new();
     for shop_data in locationlist.data {

@@ -1,96 +1,62 @@
-extern crate futures;
-extern crate hyper;
 extern crate kuchiki;
+extern crate reqwest;
 extern crate selectors;
 extern crate std;
-extern crate tokio_core;
 
 pub fn update_all() {
     std::fs::create_dir_all("pripara").expect("Failed to create pripara directory");
 
-    let mut core = tokio_core::reactor::Core::new().expect("Failed to initialize tokio reactor");
-    let client = hyper::Client::new(&core.handle());
-    let mut works = vec![];
-    for pref in fetch_prefs(&mut core, &client) {
-        use self::futures::Future;
-
-        let uri = format!("http://pripara.jp/shop/search_list?pref_name={}", pref)
-            .parse()
-            .expect("Failed to parse search_list URL");
+    for pref in fetch_prefs() {
+        let uri = format!("http://pripara.jp/shop/search_list?pref_name={}", pref);
         info!("GET {}", uri);
-        let work = client
-            .get(uri)
-            .and_then(|res| {
-                use self::futures::Stream;
-                use self::kuchiki::traits::TendrilSink;
-                use std::borrow::Borrow;
+        let mut resp = reqwest::get(&uri).unwrap();
+        use self::kuchiki::traits::TendrilSink;
 
-                info!("{}", res.status());
-                res.body().concat2().and_then(|body| {
-                    let document =
-                        kuchiki::parse_html().one(String::from_utf8_lossy(&body).borrow());
+        info!("{}", resp.status());
+        let body = resp.text().unwrap();
+        let document = kuchiki::parse_html().one(body);
 
-                    let mut shops = vec![];
-                    for shop_node in document.select("div.h2Tbl").unwrap() {
-                        if let Some(shop) = extract_shop(shop_node) {
-                            shops.push(shop);
-                        }
-                    }
-                    Ok(shops)
-                })
-            })
-            .and_then(move |shops| {
-                let mut csv_writer = super::CsvWriter::new(format!("pripara/{}.csv", pref))
-                    .expect("Failed to open CSV file");
-                csv_writer
-                    .write_header()
-                    .expect("Failed to write CSV header");
-                for shop in shops {
-                    csv_writer
-                        .write_shop(&shop)
-                        .expect("Unable to write shops to file");
-                }
-                Ok(())
-            });
-        works.push(work);
+        let mut shops = vec![];
+        for shop_node in document.select("div.h2Tbl").unwrap() {
+            if let Some(shop) = extract_shop(shop_node) {
+                shops.push(shop);
+            }
+        }
+
+        let mut csv_writer = super::CsvWriter::new(format!("pripara/{}.csv", pref))
+            .expect("Failed to open CSV file");
+        csv_writer
+            .write_header()
+            .expect("Failed to write CSV header");
+        for shop in shops {
+            csv_writer
+                .write_shop(&shop)
+                .expect("Unable to write shops to file");
+        }
     }
-    core.run(futures::future::join_all(works))
-        .expect("Failed to run tokio event loop");
 }
 
-fn fetch_prefs(
-    core: &mut tokio_core::reactor::Core,
-    client: &hyper::Client<hyper::client::HttpConnector>,
-) -> Vec<String> {
-    use self::futures::Future;
-
-    let uri = "http://pripara.jp/shop/search_list"
-        .parse()
-        .expect("Failed to parse search_list URL");
+fn fetch_prefs() -> Vec<String> {
+    let uri = "http://pripara.jp/shop/search_list";
 
     info!("GET {}", uri);
-    let work = client.get(uri).and_then(|res| {
-        use self::futures::Stream;
-        use self::kuchiki::traits::TendrilSink;
-        use std::borrow::Borrow;
+    let mut resp = reqwest::get(uri).unwrap();
+    use self::kuchiki::traits::TendrilSink;
 
-        info!("{}", res.status());
-        res.body().concat2().and_then(|body| {
-            let document = kuchiki::parse_html().one(String::from_utf8_lossy(&body).borrow());
+    info!("{}", resp.status());
+    let body = resp.text().unwrap();
+    let document = kuchiki::parse_html().one(body);
 
-            let mut prefs = vec![];
-            for option_node in document.select("select[name=pref_name] option").unwrap() {
-                let element = option_node.as_node().as_element().unwrap();
-                if let Some(value) = element.attributes.borrow().get("value") {
-                    if !value.is_empty() {
-                        prefs.push(value.to_owned());
-                    }
-                }
+    let mut prefs = vec![];
+    for option_node in document.select("select[name=pref_name] option").unwrap() {
+        let element = option_node.as_node().as_element().unwrap();
+        if let Some(value) = element.attributes.borrow().get("value") {
+            if !value.is_empty() {
+                prefs.push(value.to_owned());
             }
-            Ok(prefs)
-        })
-    });
-    core.run(work).unwrap()
+        }
+    }
+    prefs
 }
 
 fn extract_shop(shop_node: kuchiki::NodeDataRef<kuchiki::ElementData>) -> Option<super::Shop> {
