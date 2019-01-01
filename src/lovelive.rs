@@ -1,8 +1,3 @@
-extern crate reqwest;
-extern crate serde;
-extern crate serde_json;
-extern crate std;
-
 #[derive(Debug, Deserialize)]
 struct Locationlist {
     #[serde(rename = "DATA")]

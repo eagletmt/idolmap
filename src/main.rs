@@ -1,7 +1,3 @@
-extern crate clap;
-extern crate env_logger;
-extern crate idolmap;
-
 fn main() {
     env_logger::init();
 

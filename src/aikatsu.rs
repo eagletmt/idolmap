@@ -1,9 +1,3 @@
-extern crate kuchiki;
-extern crate reqwest;
-extern crate selectors;
-extern crate std;
-extern crate url;
-
 pub fn update_all() {
     std::fs::create_dir_all("aikatsu").expect("Failed to create aikatsu directory");
 
@@ -19,7 +13,7 @@ pub fn update_all() {
         info!("{}", resp.status());
         let body = resp.text().unwrap();
 
-        use self::kuchiki::traits::TendrilSink;
+        use kuchiki::traits::TendrilSink;
         let document = kuchiki::parse_html().one(body);
 
         let last_page_node = document
@@ -82,7 +76,7 @@ fn fetch_prefs() -> std::collections::HashMap<i32, String> {
     info!("{}", resp.status());
     let body = resp.text().unwrap();
 
-    use self::kuchiki::traits::TendrilSink;
+    use kuchiki::traits::TendrilSink;
     let document = kuchiki::parse_html().one(body);
 
     let mut prefs = std::collections::HashMap::new();
@@ -126,7 +120,7 @@ fn extract_shop_address(shop_node: &kuchiki::NodeRef) -> Option<String> {
         .unwrap()
         .next()
         .and_then(|map_node| {
-            use self::selectors::Element;
+            use selectors::Element;
             map_node.parent_element().and_then(|parent_node| {
                 parent_node
                     .as_node()

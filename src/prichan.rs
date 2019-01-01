@@ -1,10 +1,3 @@
-extern crate kuchiki;
-extern crate reqwest;
-extern crate serde;
-extern crate serde_json;
-extern crate std;
-extern crate url;
-
 pub fn update_all() {
     std::fs::create_dir_all("prichan").expect("Failed to create prichan directory");
 
@@ -22,7 +15,8 @@ pub fn update_all() {
         info!("{}", resp.status());
         let body: PrichanResponse = resp.json().unwrap();
 
-        let shops: Vec<_> = body.shops
+        let shops: Vec<_> = body
+            .shops
             .into_iter()
             .map(|shop| super::Shop {
                 name: shop.name,
@@ -52,7 +46,7 @@ fn fetch_prefs() -> Vec<(String, String)> {
     info!("{}", resp.status());
     let body = resp.text().unwrap();
 
-    use self::kuchiki::traits::TendrilSink;
+    use kuchiki::traits::TendrilSink;
     let document = kuchiki::parse_html().one(body);
 
     let mut prefs = vec![];
@@ -60,7 +54,8 @@ fn fetch_prefs() -> Vec<(String, String)> {
         let element = a_node.as_node().as_element().unwrap();
         if let Some(href) = element.attributes.borrow().get("href") {
             let u = uri.join(href).unwrap();
-            let kv = u.query_pairs()
+            let kv = u
+                .query_pairs()
                 .find(|&(ref key, _)| key == "pcode")
                 .expect("pcode parameter is missing");
             prefs.push((a_node.text_contents().trim().to_owned(), kv.1.into_owned()));

@@ -1,6 +1,3 @@
-extern crate csv;
-extern crate std;
-
 #[derive(Debug, Deserialize)]
 struct Row {
     #[serde(rename = "店名")]
