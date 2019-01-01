@@ -1,3 +1,5 @@
+use log::info;
+
 pub fn update_all() {
     std::fs::create_dir_all("prichan").expect("Failed to create prichan directory");
 
@@ -64,13 +66,13 @@ fn fetch_prefs() -> Vec<(String, String)> {
     prefs
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, serde_derive::Deserialize)]
 struct PrichanResponse {
     #[serde(rename = "sList")]
     shops: Vec<PrichanShop>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, serde_derive::Deserialize)]
 struct PrichanShop {
     name: String,
     address: String,

@@ -1,3 +1,5 @@
+use log::info;
+
 pub fn update_all() {
     std::fs::create_dir_all("aikatsu").expect("Failed to create aikatsu directory");
 

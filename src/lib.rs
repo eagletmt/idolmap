@@ -1,8 +1,3 @@
-#[macro_use]
-extern crate log;
-#[macro_use]
-extern crate serde_derive;
-
 #[derive(Debug)]
 pub struct Shop {
     pub name: String,

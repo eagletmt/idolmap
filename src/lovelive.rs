@@ -1,10 +1,12 @@
-#[derive(Debug, Deserialize)]
+use log::info;
+
+#[derive(Debug, serde_derive::Deserialize)]
 struct Locationlist {
     #[serde(rename = "DATA")]
     data: Vec<ShopData>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, serde_derive::Deserialize)]
 struct ShopData {
     #[serde(rename = "TNAME")]
     tname: String,

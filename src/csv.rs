@@ -1,4 +1,4 @@
-#[derive(Debug, Deserialize)]
+#[derive(Debug, serde_derive::Deserialize)]
 struct Row {
     #[serde(rename = "店名")]
     name: String,
@@ -18,8 +18,8 @@ where
     let mut idx = 0;
 
     for path in paths {
-        let mut reader =
-            csv::Reader::from_path(path).unwrap_or_else(|_| panic!("Unable to read CSV file {}", path));
+        let mut reader = csv::Reader::from_path(path)
+            .unwrap_or_else(|_| panic!("Unable to read CSV file {}", path));
         for result in reader.deserialize() {
             let row: Row =
                 result.unwrap_or_else(|_| panic!("Unable to deserialize row in CSV file {}", path));
@@ -40,7 +40,8 @@ fn flush(rows: &[Row], idx: usize) {
     use std::io::Write;
 
     let path = format!("{}.csv", idx);
-    let mut file = std::fs::File::create(&path).unwrap_or_else(|_| panic!("Unable to open {}", path));
+    let mut file =
+        std::fs::File::create(&path).unwrap_or_else(|_| panic!("Unable to open {}", path));
     writeln!(&mut file, "店名,住所,台数").expect("Unable to write CSV header");
     for row in rows {
         writeln!(&mut file, "{},{},{}", row.name, row.address, row.units)
