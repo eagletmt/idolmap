@@ -16,7 +16,7 @@ pub struct CsvWriter {
 }
 
 impl CsvWriter {
-    pub fn new<P>(path: P) -> std::io::Result<Self>
+    pub fn open<P>(path: P) -> std::io::Result<Self>
     where
         P: AsRef<std::path::Path>,
     {

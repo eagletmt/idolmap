@@ -49,13 +49,13 @@ pub fn update_all() {
             let document = kuchiki::parse_html().one(body);
 
             for shop_node in document.select("table.shoplist_resultlist").unwrap() {
-                if let Some(shop) = extract_shop(shop_node) {
+                if let Some(shop) = extract_shop(&shop_node) {
                     shops.push(shop);
                 }
             }
         }
 
-        let mut csv_writer = super::CsvWriter::new(format!("aikatsu/{}.csv", pref))
+        let mut csv_writer = super::CsvWriter::open(format!("aikatsu/{}.csv", pref))
             .expect("Failed to open CSV file");
         csv_writer
             .write_header()
@@ -93,13 +93,13 @@ fn fetch_prefs() -> std::collections::HashMap<i32, String> {
     prefs
 }
 
-fn extract_shop(shop_node: kuchiki::NodeDataRef<kuchiki::ElementData>) -> Option<super::Shop> {
+fn extract_shop(shop_node: &kuchiki::NodeDataRef<kuchiki::ElementData>) -> Option<super::Shop> {
     let noderef = shop_node.as_node();
     extract_shop_name(noderef).and_then(|name| {
         extract_shop_address(noderef).and_then(|address| {
             Some(super::Shop {
-                name: name,
-                address: address,
+                name,
+                address,
                 units: extract_shop_units(noderef),
             })
         })

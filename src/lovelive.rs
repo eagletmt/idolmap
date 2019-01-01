@@ -68,14 +68,14 @@ pub fn update_all() {
     let mut h = std::collections::HashMap::new();
     for shop_data in locationlist.data {
         let pref = shop_data.pref.clone();
-        h.entry(pref).or_insert(vec![]).push(super::Shop {
+        h.entry(pref).or_insert_with(|| vec![]).push(super::Shop {
             name: shop_data.tname,
             address: format!("{}{}", shop_data.pref, shop_data.addr),
             units: shop_data.cnt,
         })
     }
     for (pref, shops) in h {
-        let mut csv_writer = super::CsvWriter::new(format!("lovelive/{}.csv", pref))
+        let mut csv_writer = super::CsvWriter::open(format!("lovelive/{}.csv", pref))
             .expect("Failed to open CSV file");
         csv_writer
             .write_header()

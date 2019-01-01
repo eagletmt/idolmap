@@ -19,10 +19,10 @@ where
 
     for path in paths {
         let mut reader =
-            csv::Reader::from_path(path).expect(&format!("Unable to read CSV file {}", path));
+            csv::Reader::from_path(path).unwrap_or_else(|_| panic!("Unable to read CSV file {}", path));
         for result in reader.deserialize() {
             let row: Row =
-                result.expect(&format!("Unable to deserialize row in CSV file {}", path));
+                result.unwrap_or_else(|_| panic!("Unable to deserialize row in CSV file {}", path));
             rows.push(row);
             if rows.len() >= MAX_LENGTH {
                 flush(&rows, idx);
@@ -40,7 +40,7 @@ fn flush(rows: &[Row], idx: usize) {
     use std::io::Write;
 
     let path = format!("{}.csv", idx);
-    let mut file = std::fs::File::create(&path).expect(&format!("Unable to open {}", path));
+    let mut file = std::fs::File::create(&path).unwrap_or_else(|_| panic!("Unable to open {}", path));
     writeln!(&mut file, "店名,住所,台数").expect("Unable to write CSV header");
     for row in rows {
         writeln!(&mut file, "{},{},{}", row.name, row.address, row.units)

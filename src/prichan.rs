@@ -5,7 +5,7 @@ pub fn update_all() {
         let now = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap();
-        let timestamp = now.as_secs() * 1000 + now.subsec_nanos() as u64 / 1000000;
+        let timestamp = now.as_secs() * 1000 + u64::from(now.subsec_nanos()) / 1_000_000;
         let uri = format!(
             "https://prichan.jp/shop/data/pref{}.js?_={}",
             pcode, timestamp
@@ -25,7 +25,7 @@ pub fn update_all() {
             })
             .collect();
 
-        let mut csv_writer = super::CsvWriter::new(format!("prichan/{}.csv", pref))
+        let mut csv_writer = super::CsvWriter::open(format!("prichan/{}.csv", pref))
             .expect("Failed to open CSV file");
         csv_writer
             .write_header()
